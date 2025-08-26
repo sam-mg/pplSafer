@@ -1,0 +1,66 @@
+{
+    "TelephonyAPIs": {
+        "android.telephony.SmsManager": [
+            "sendTextMessage(java.lang.String, java.lang.String, java.lang.String, android.app.PendingIntent, android.app.PendingIntent)"
+        ],
+        "android.telephony.SmsMessage": [
+            "createFromPdu([B)",
+            "getMessageBody()",
+            "getOriginatingAddress()"
+        ]
+    },
+    "MediaAPIs": {
+        "android.media.MediaRecorder": [
+            "setAudioSource(int)",
+            "setOutputFormat(int)",
+            "setOutputFile(java.lang.String)",
+            "setAudioEncoder(int)",
+            "prepare()",
+            "start()",
+            "stop()",
+            "release()"
+        ]
+    },
+    "PermissionsAPIs": {
+        "androidx.core.content.ContextCompat": [
+            "checkSelfPermission(android.content.Context, java.lang.String)"
+        ],
+        "androidx.core.app.ActivityCompat": [
+            "requestPermissions(android.app.Activity, [Ljava.lang.String;, int)"
+        ]
+    },
+    "NetworkHTTPAPIs": {
+        "java.net.HttpURLConnection": [
+            "setRequestMethod(java.lang.String)",
+            "getInputStream()"
+        ],
+        "java.net.URL": [
+            "openConnection()"
+        ],
+        "java.io.BufferedReader": [
+            "readLine()"
+        ],
+        "java.io.InputStreamReader": [
+            "$init(java.io.InputStream)"
+        ]
+    },
+    "FileStorageAPIs": {
+        "android.os.Environment": [
+            "DIRECTORY_MUSIC"
+        ],
+        "android.content.Context": [
+            "getExternalFilesDir(java.lang.String)"
+        ]
+    },
+    "BroadcastReceiverAPIs": {
+        "android.content.BroadcastReceiver": [
+            "onReceive(android.content.Context, android.content.Intent)"
+        ],
+        "android.content.Intent": [
+            "getExtras()"
+        ],
+        "android.os.Bundle": [
+            "get(java.lang.String)"
+        ]
+    }
+}

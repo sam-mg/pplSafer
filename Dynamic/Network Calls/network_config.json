@@ -1,0 +1,94 @@
+{
+  "connections": {
+    "java.sql.Connection": [
+      "close()",
+      "commit()",
+      "rollback()",
+      "createStatement()",
+      "prepareStatement(java.lang.String)",
+      "prepareStatement(java.lang.String, int)",
+      "prepareStatement(java.lang.String, int, int)",
+      "prepareCall(java.lang.String)",
+      "prepareCall(java.lang.String, int, int)",
+      "getMetaData()",
+      "getAutoCommit()",
+      "setAutoCommit(boolean)",
+      "getWarnings()",
+      "setTransactionIsolation(int)",
+      "getTransactionIsolation()",
+      "setTypeMap(java.util.Map)",
+      "getTypeMap()",
+      "clearWarnings()",
+      "isClosed()",
+      "setSavepoint()",
+      "setSavepoint(java.lang.String)",
+      "releaseSavepoint(java.sql.Savepoint)",
+      "rollback(java.sql.Savepoint)",
+      "prepareStatement(java.lang.String, [I)",
+      "prepareStatement(java.lang.String, [Ljava.lang.String;)",
+      "createBlob()",
+      "createClob()",
+      "isValid(int)"
+    ],
+    "java.net.HttpURLConnection": [
+      "connect()",
+      "disconnect()",
+      "getInputStream()",
+      "getOutputStream()",
+      "getResponseCode()",
+      "getResponseMessage()",
+      "getHeaderField(java.lang.String)",
+      "getHeaderFieldKey(int)",
+      "setRequestMethod(java.lang.String)",
+      "setRequestProperty(java.lang.String, java.lang.String)",
+      "setInstanceFollowRedirects(boolean)",
+      "setFollowRedirects(boolean)",
+      "setChunkedStreamingMode(int)",
+      "setFixedLengthStreamingMode(int)",
+      "setFixedLengthStreamingMode(long)",
+      "getRequestMethod()",
+      "getPermission()",
+      "usingProxy()",
+      "getErrorStream()",
+      "getInstanceFollowRedirects()",
+      "getFollowRedirects()"
+    ],
+    "java.net.URLConnection": [
+      "connect()",
+      "getInputStream()",
+      "getOutputStream()",
+      "setRequestProperty(java.lang.String, java.lang.String)",
+      "getHeaderField(java.lang.String)",
+      "setDoInput(boolean)",
+      "setDoOutput(boolean)",
+      "getURL()"
+    ]
+  },
+  "additionalClasses": {
+    "java.net.URL": [
+      "$init(java.lang.String)",
+      "getProtocol()",
+      "getHost()",
+      "getPort()",
+      "getPath()",
+      "getQuery()",
+      "toString()"
+    ],
+    "java.net.Socket": [
+      "$init(java.lang.String, int)",
+      "connect(java.net.SocketAddress)",
+      "close()"
+    ],
+    "java.io.OutputStream": [
+      "write([B)",
+      "write(int)",
+      "flush()",
+      "close()"
+    ],
+    "java.io.InputStream": [
+      "read()",
+      "read([B)",
+      "close()"
+    ]
+  }
+}

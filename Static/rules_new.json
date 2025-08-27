@@ -1,0 +1,167 @@
+[
+  {
+    "rule_id": "Rule_SMS_Advanced",
+    "description": "Checks for ability to send and receive SMS messages.",
+    "target_permission": "android.permission.SEND_SMS",
+    "target_class": "Landroid/telephony/SmsManager;",
+    "target_methods": [
+      "sendTextMessage",
+      "sendMultipartTextMessage",
+      "sendDataMessage"
+    ]
+  },
+  {
+    "rule_id": "Rule_Audio_Recording",
+    "description": "Checks for ability to record audio using microphone.",
+    "target_permission": "android.permission.RECORD_AUDIO",
+    "target_class": "Landroid/media/MediaRecorder;",
+    "target_methods": [
+      "start",
+      "setAudioSource",
+      "prepare",
+      "stop"
+    ]
+  },
+  {
+    "rule_id": "Rule_Screen_Recording",
+    "description": "Checks for ability to capture screen content and record screen.",
+    "target_permission": "android.permission.FOREGROUND_SERVICE",
+    "target_class": "Landroid/media/projection/MediaProjectionManager;",
+    "target_methods": [
+      "createScreenCaptureIntent"
+    ]
+  },
+  {
+    "rule_id": "Rule_Notification_Listener",
+    "description": "Checks for ability to access and intercept notifications.",
+    "target_permission": "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
+    "target_class": "Landroid/service/notification/NotificationListenerService;",
+    "target_methods": [
+      "onNotificationPosted",
+      "onNotificationRemoved"
+    ]
+  },
+  {
+    "rule_id": "Rule_Web_Components",
+    "description": "Checks for web browsing and internet access capabilities.",
+    "target_permission": "android.permission.INTERNET",
+    "target_class": "Landroid/webkit/WebView;",
+    "target_methods": [
+      "loadUrl",
+      "evaluateJavascript"
+    ]
+  },
+  {
+    "rule_id": "Rule_Clipboard_Access",
+    "description": "Checks for ability to read and write clipboard data.",
+    "target_permission": "android.permission.READ_CLIPBOARD",
+    "target_class": "Landroid/content/ClipboardManager;",
+    "target_methods": [
+      "getPrimaryClip",
+      "setPrimaryClip",
+      "getText"
+    ]
+  },
+  {
+    "rule_id": "Rule_Location_Tracking",
+    "description": "Checks for ability to access device location services.",
+    "target_permission": "android.permission.ACCESS_FINE_LOCATION",
+    "target_class": "Landroid/location/LocationManager;",
+    "target_methods": [
+      "requestLocationUpdates",
+      "getLastKnownLocation"
+    ]
+  },
+  {
+    "rule_id": "Rule_Accessibility_Persistence",
+    "description": "Checks for accessibility service usage for persistence and control.",
+    "target_permission": "android.permission.BIND_ACCESSIBILITY_SERVICE",
+    "target_class": "Landroid/accessibilityservice/AccessibilityService;",
+    "target_methods": [
+      "performGlobalAction"
+    ]
+  },
+  {
+    "rule_id": "Rule_Keylogging",
+    "description": "Detects keylogging attempts using Accessibility Service.",
+    "target_permission": "android.permission.BIND_ACCESSIBILITY_SERVICE",
+    "target_class": "Landroid/accessibilityservice/AccessibilityService;",
+    "target_methods": [
+      "getEventType",
+      "getSource",
+      "getText"
+    ]
+  },
+  {
+    "rule_id": "Rule_Notification_Tapping",
+    "description": "Detects notification interception, tapping, and deceptive notifications.",
+    "target_permission": "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
+    "target_class": "Landroid/service/notification/NotificationListenerService;",
+    "target_methods": [
+      "onNotificationPosted",
+      "getActiveNotifications",
+      "getNotification",
+      "send",
+      "cancelNotification",
+      "setContentTitle",
+      "setContentText",
+      "setSmallIcon",
+      "setContentIntent"
+    ]
+  },
+  {
+    "rule_id": "Rule_Overlay_Attacks",
+    "description": "Detects overlay attacks using WindowManager.",
+    "target_permission": "android.permission.SYSTEM_ALERT_WINDOW",
+    "target_class": "Landroid/view/WindowManager;",
+    "target_methods": [
+      "getSystemService",
+      "addView",
+      "updateViewLayout",
+      "removeView"
+    ]
+  },
+  {
+    "rule_id": "Rule_Dex_Loading",
+    "description": "Detects dynamic code loading through DexClassLoader.",
+    "target_permission": "android.permission.INTERNET",
+    "target_class": "Ldalvik/system/DexClassLoader;",
+    "target_methods": [
+      "forName",
+      "getMethod",
+      "invoke",
+      "addJavascriptInterface",
+      "loadLibrary"
+    ]
+  },
+  {
+    "rule_id": "Rule_Runtime_Crypto",
+    "description": "Detects runtime file encryption/decryption.",
+    "target_permission": [
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.WRITE_EXTERNAL_STORAGE",
+      "android.permission.MANAGE_EXTERNAL_STORAGE",
+      "android.permission.FOREGROUND_SERVICE"
+    ],
+    "target_class": "Ljavax/crypto/Cipher;",
+    "target_methods": [
+      "getInstance",
+      "init",
+      "doFinal",
+      "generateKey",
+      "generateKeyPair",
+      "listFiles",
+      "walk"
+    ]
+  },
+  {
+    "rule_id": "Rule_Dropper_Attacks",
+    "description": "Detects installation of secondary payload APKs (dropper).",
+    "target_permission": "android.permission.REQUEST_INSTALL_PACKAGES",
+    "target_class": "Landroid/content/pm/PackageInstaller;",
+    "target_methods": [
+      "installPackage",
+      "createSession"
+    ]
+  }
+]

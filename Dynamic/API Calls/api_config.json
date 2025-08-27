@@ -62,5 +62,67 @@
         "android.os.Bundle": [
             "get(java.lang.String)"
         ]
+    },
+    "ModernCryptoAPIs": {
+        "java.security.MessageDigest": [
+            "getInstance(java.lang.String)",
+            "update([B)",
+            "digest()",
+            "digest([B)"
+        ],
+        "javax.crypto.Cipher": [
+            "getInstance(java.lang.String)",
+            "init(int, java.security.Key)",
+            "doFinal([B)",
+            "update([B)"
+        ],
+        "javax.crypto.KeyGenerator": [
+            "getInstance(java.lang.String)",
+            "generateKey()"
+        ]
+    },
+    "BiometricAPIs": {
+        "androidx.biometric.BiometricPrompt": [
+            "authenticate(androidx.biometric.BiometricPrompt.PromptInfo)",
+            "authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject)"
+        ],
+        "android.hardware.fingerprint.FingerprintManager": [
+            "authenticate(android.hardware.fingerprint.FingerprintManager$CryptoObject, android.os.CancellationSignal, int, android.hardware.fingerprint.FingerprintManager$AuthenticationCallback, android.os.Handler)"
+        ]
+    },
+    "LocationAPIs": {
+        "android.location.LocationManager": [
+            "requestLocationUpdates(java.lang.String, long, float, android.location.LocationListener)",
+            "getLastKnownLocation(java.lang.String)",
+            "getBestProvider(android.location.Criteria, boolean)"
+        ]
+    },
+    "ContactsAPIs": {
+        "android.content.ContentResolver": [
+            "query(android.net.Uri, [Ljava.lang.String;, java.lang.String, [Ljava.lang.String;, java.lang.String)",
+            "insert(android.net.Uri, android.content.ContentValues)",
+            "delete(android.net.Uri, java.lang.String, [Ljava.lang.String;)"
+        ]
+    },
+    "DeviceAdminAPIs": {
+        "android.app.admin.DevicePolicyManager": [
+            "isAdminActive(android.content.ComponentName)",
+            "lockNow()",
+            "resetPassword(java.lang.String, int)",
+            "wipeData(int)"
+        ]
+    },
+    "ClipboardAPIs": {
+        "android.content.ClipboardManager": [
+            "setPrimaryClip(android.content.ClipData)",
+            "getPrimaryClip()",
+            "hasPrimaryClip()"
+        ]
+    },
+    "RuntimeAPIs": {
+        "java.lang.Runtime": [
+            "exec(java.lang.String)",
+            "exec([Ljava.lang.String;)"
+        ]
     }
 }

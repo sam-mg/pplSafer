@@ -80,8 +80,6 @@
       "close()"
     ],
     "java.io.OutputStream": [
-      "write([B)",
-      "write(int)",
       "flush()",
       "close()"
     ],

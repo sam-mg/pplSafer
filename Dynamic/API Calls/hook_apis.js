@@ -1,7 +1,5 @@
-// API configuration will be injected by the Python script
 let apiConfig = {};
 
-// Function to set the configuration (called from Python)
 rpc.exports.setconfig = function(config) {
   apiConfig = config;
   console.log("=== Configuration loaded from api_config.json ===");
@@ -18,7 +16,17 @@ function parseMethodSignature(signature) {
 function hookMethod(className, methodSignature) {
   try {
     const { methodName, paramTypes } = parseMethodSignature(methodSignature);
-    const targetClass = Java.use(className);
+    
+    let targetClass;
+    try {
+      targetClass = Java.use(className);
+    } catch (classError) {
+      if (classError.message.includes("ClassNotFoundException")) {
+        console.log(`[i] Skipping ${className} - class not found in this app`);
+        return;
+      }
+      throw classError;
+    }
 
     const isConstructor = methodName === "$init";
     const overloadTarget = isConstructor ? targetClass.$init : targetClass[methodName];
@@ -64,7 +72,88 @@ function hookMethod(className, methodSignature) {
 
         "android.content.Intent.getExtras": [],
 
-        "android.content.Context.getExternalFilesDir": ["type"]
+        "android.content.Context.getExternalFilesDir": ["type"],
+
+        "java.security.MessageDigest.getInstance": ["algorithm"],
+        "java.security.MessageDigest.update": ["input"],
+        "java.security.MessageDigest.digest": ["input"],
+        "javax.crypto.Cipher.getInstance": ["transformation"],
+        "javax.crypto.Cipher.init": ["opmode", "key"],
+        "javax.crypto.Cipher.doFinal": ["input"],
+        "javax.crypto.Cipher.update": ["input"],
+        "javax.crypto.KeyGenerator.getInstance": ["algorithm"],
+        "javax.crypto.KeyGenerator.generateKey": [],
+
+        "androidx.biometric.BiometricPrompt.authenticate": ["promptInfo", "cryptoObject"],
+        "android.hardware.fingerprint.FingerprintManager.authenticate": ["crypto", "cancel", "flags", "callback", "handler"],
+
+        "android.location.LocationManager.requestLocationUpdates": ["provider", "minTime", "minDistance", "listener"],
+        "android.location.LocationManager.getLastKnownLocation": ["provider"],
+        "android.location.LocationManager.getBestProvider": ["criteria", "enabledOnly"],
+
+        "android.content.ContentResolver.query": ["uri", "projection", "selection", "selectionArgs", "sortOrder"],
+        "android.content.ContentResolver.insert": ["uri", "values"],
+        "android.content.ContentResolver.delete": ["uri", "where", "selectionArgs"],
+
+        "android.app.admin.DevicePolicyManager.isAdminActive": ["admin"],
+        "android.app.admin.DevicePolicyManager.lockNow": [],
+        "android.app.admin.DevicePolicyManager.resetPassword": ["password", "flags"],
+        "android.app.admin.DevicePolicyManager.wipeData": ["flags"],
+
+        "android.content.ClipboardManager.setPrimaryClip": ["clip"],
+        "android.content.ClipboardManager.getPrimaryClip": [],
+        "android.content.ClipboardManager.hasPrimaryClip": [],
+
+        "java.lang.Runtime.exec": ["command", "envp"],
+
+        "java.security.KeyPairGenerator.getInstance": ["algorithm"],
+        "java.security.KeyPairGenerator.generateKeyPair": [],
+
+        "com.google.android.gms.location.FusedLocationProviderClient.getLastLocation": [],
+        "com.google.android.gms.location.FusedLocationProviderClient.requestLocationUpdates": ["request", "callback", "looper"],
+
+        "android.hardware.Camera.open": [],
+        "android.hardware.Camera.setPreviewDisplay": ["holder"],
+        "android.hardware.Camera.startPreview": [],
+        "android.hardware.Camera.takePicture": ["shutter", "raw", "jpeg"],
+
+        "android.hardware.camera2.CameraManager.getCameraIdList": [],
+        "android.hardware.camera2.CameraManager.openCamera": ["cameraId", "callback", "handler"],
+
+        "android.content.pm.PackageManager.getInstalledApplications": ["flags"],
+        "android.content.pm.PackageManager.getInstalledPackages": ["flags"],
+        "android.content.pm.PackageManager.getApplicationInfo": ["packageName", "flags"],
+        "android.content.pm.PackageManager.checkPermission": ["permName", "pkgName"],
+
+        "android.app.ActivityManager.getRunningAppProcesses": [],
+        "android.app.ActivityManager.getRunningTasks": ["maxNum"],
+        "android.app.ActivityManager.killBackgroundProcesses": ["packageName"],
+
+        "android.app.NotificationManager.notify": ["id", "notification"],
+        "android.app.NotificationManager.cancel": ["id"],
+        "android.app.NotificationManager.areNotificationsEnabled": [],
+
+        "java.security.KeyStore.getInstance": ["type"],
+        "java.security.KeyStore.load": ["stream", "password"],
+        "java.security.KeyStore.getKey": ["alias", "password"],
+        "java.security.KeyStore.setKeyEntry": ["alias", "key", "password", "chain"],
+
+        "android.net.ConnectivityManager.getActiveNetworkInfo": [],
+        "android.net.ConnectivityManager.getAllNetworkInfo": [],
+        "android.net.ConnectivityManager.registerNetworkCallback": ["request", "callback"],
+
+        "android.net.wifi.WifiManager.getConnectionInfo": [],
+        "android.net.wifi.WifiManager.getScanResults": [],
+        "android.net.wifi.WifiManager.startScan": [],
+
+        "java.lang.ProcessBuilder.start": [],
+        "java.lang.ProcessBuilder.command": ["command"],
+
+        "java.lang.Class.forName": ["className"],
+        "java.lang.Class.getMethod": ["name", "parameterTypes"],
+        "java.lang.Class.getDeclaredMethod": ["name", "parameterTypes"],
+
+        "java.lang.reflect.Method.invoke": ["obj", "args"],
       };
 
       const fqMethodName = `${className}.${methodName}`;
@@ -102,7 +191,6 @@ function hookMethod(className, methodSignature) {
 }
 
 function startHooking() {
-  // Check if Java is available
   if (typeof Java === 'undefined') {
     console.log("[-] Java runtime not available yet, retrying in 500ms...");
     setTimeout(startHooking, 500);

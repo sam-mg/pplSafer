@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Enhanced Python runner that loads JSON configuration and injects it into JavaScript.
-Uses subprocess approach to avoid Java runtime timing issues with Frida Python bindings.
-"""
 
 import subprocess
 import sys
@@ -11,7 +7,7 @@ import json
 import tempfile
 
 PACKAGE_NAME = "com.example.testing_app"
-CONFIG_FILE = "Frida Hook/API Calls/api_config.json"
+CONFIG_FILE = "Dynamic/API Calls/api_config.json"
 
 def load_config():
     """Load the API configuration from JSON file"""
@@ -27,7 +23,7 @@ def load_config():
 
 def inject_config_into_script(config):
     """Inject configuration into the existing hook_apis.js file"""
-    script_path = "Frida Hook/API Calls/hook_apis.js"
+    script_path = "Dynamic/API Calls/hook_apis.js"
     
     try:
         with open(script_path, 'r') as f:
@@ -36,21 +32,16 @@ def inject_config_into_script(config):
         print(f"[!] Error: {script_path} not found")
         return None
     
-    # Replace the empty apiConfig with actual config
     config_line = f"let apiConfig = {json.dumps(config, indent=2)};"
     modified_script = original_script.replace("let apiConfig = {};", config_line)
     
-    # Also remove the RPC setconfig function since we're injecting directly
-    # and call startHooking() immediately
     modified_script = modified_script.replace(
         "rpc.exports.setconfig = function(config) {\n  apiConfig = config;\n  console.log(\"=== Configuration loaded from api_config.json ===\");\n  startHooking();\n};",
         "// Configuration injected directly from Python script"
     )
     
-    # Add immediate call to startHooking at the end
     modified_script += "\n\n// Start hooking immediately\nstartHooking();"
     
-    # Create temporary file
     with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False) as f:
         f.write(modified_script)
         return f.name
@@ -76,10 +67,8 @@ def main():
         print("[*] Press Ctrl+C to stop monitoring")
         print("=" * 60)
         
-        # Build the frida command
         cmd = ["frida", "-U", "-f", PACKAGE_NAME, "-l", temp_script]
         
-        # Run frida as a subprocess
         process = subprocess.run(cmd, text=True)
         
         print("\n[*] Monitoring stopped")
@@ -96,7 +85,6 @@ def main():
         print(f"[!] Unexpected error: {e}")
         return 1
     finally:
-        # Clean up temporary file
         if temp_script and os.path.exists(temp_script):
             try:
                 os.unlink(temp_script)

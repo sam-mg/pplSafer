@@ -32,6 +32,23 @@
             </table>
         </div>
 
+        <!-- ML Prediction Section -->
+        <div class="analysis-card">
+            <h2 class="card-title">🤖 ML Prediction</h2>
+            <table class="info-table">
+                <thead>
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody id="ml-prediction-tbody">
+                    <tr><td>prediction</td><td></td></tr>
+                    <tr><td>malware_probability_percent</td><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+
         <!-- Certificates Section -->
         <div class="analysis-card">
             <h2 class="card-title">🔑 Certificates</h2>
@@ -54,7 +71,6 @@
             </table>
         </div>
 
-
         <!-- VirusTotal Section -->
         <div class="analysis-card">
             <h2 class="card-title">🛡️ VirusTotal Report</h2>
@@ -76,41 +92,62 @@
             </table>
         </div>
 
-        <!-- Permissions Section -->
+        <!-- ClamAV Section -->
         <div class="analysis-card">
-        <h2 class="card-title">🔐 Permissions Analysis</h2>
-        <table class="info-table">
-            <thead>
-                <tr>
-                    <th>Permission</th>
-                </tr>
-            </thead>
-            <tbody id="permissions-tbody">
-                <tr><td></td></tr>
-            </tbody>
-        </table>
-    </div>
-
-
-        <!-- MITRE ATT&CK Mapping Section -->
-        <div class="analysis-card mitre-section">
-            <h2 class="card-title">⚔️ MITRE ATT&CK Mapping</h2>
+            <h2 class="card-title">🔍 ClamAV Scan</h2>
             <table class="info-table">
                 <thead>
                     <tr>
-                        <th>Technique ID</th>
-                        <th>Technique Name</th>
-                        <th>Tactic / Category</th>
-                        <th>Reference / Evidence</th>
+                        <th>Property</th>
+                        <th>Value</th>
                     </tr>
                 </thead>
-                <tbody id="mitre-tbody">
-                    <tr><td></td><td></td><td></td><td></td></tr>
+                <tbody id="clamav-tbody">
+                    <tr><td>Status</td><td></td></tr>
+                    <tr><td>Assessment</td><td></td></tr>
+                    <tr><td>Known Viruses</td><td></td></tr>
+                    <tr><td>Engine Version</td><td></td></tr>
+                    <tr><td>Scanned Files</td><td></td></tr>
+                    <tr><td>Infected Files</td><td></td></tr>
+                    <tr><td>Data Scanned</td><td></td></tr>
+                    <tr><td>Scan Time</td><td></td></tr>
                 </tbody>
-        </table>
-    </div>
-</div>
+            </table>
+        </div>
 
-<script src="{{ url_for('static', filename='js/results-script.js') }}"></script>
+        <!-- Permissions Section -->
+        <div class="analysis-card">
+            <h2 class="card-title">🔐 Permissions Analysis</h2>
+            <table class="info-table">
+                <thead>
+                    <tr>
+                        <th>Permission</th>
+                    </tr>
+                </thead>
+                <tbody id="permissions-tbody">
+                    <tr><td></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="analysis-card">
+            <h2 class="card-title">📡 Dynamic Monitors</h2>
+            
+            <div class="monitor-select-container">
+                <label for="monitor-select">Choose Monitor:</label>
+                <select id="monitor-select">
+                    <option value="">-- Select Monitor --</option>
+                    <option value="dynamic/API Calls/api_monitor_output.json">API Monitor</option>
+                    <option value="dynamic/Network Calls/network_monitor_output.json">Network Monitor</option>
+                </select>
+            </div>
+
+            <div id="monitor-table-container" class="monitor-table-container">
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/results-script.js') }}"></script>
 </body>
 </html>

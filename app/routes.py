@@ -2,8 +2,37 @@ from flask import Blueprint, request, jsonify, render_template, send_from_direct
 import os
 import subprocess
 import webbrowser
+import threading
 
 main = Blueprint('main', __name__)
+
+status = {"step": "idle"}
+
+def run_analysis_scripts():
+    global status
+    try:
+        status["step"] = "Static analysis running..."
+        subprocess.run(["python", "analysis/static.py"], check=True)
+
+        status["step"] = "Machine Learning model testing in place..."
+        subprocess.run(["python", "analysis/ml.py"], check=True)
+
+        status["step"] = "Setting up for Dynamic analysis..."
+        subprocess.run(["python", "analysis/dynamic/dynamic_setup.py"], check=True)
+
+        status["step"] = "Monitoring API Calls made..."
+        subprocess.run(["python", "analysis/dynamic/API Calls/api_monitor.py"], check=True)
+
+        status["step"] = "Monitoring Network Calls made..."
+        subprocess.run(["python", "analysis/dynamic/Network Calls/network_monitor.py"], check=True)
+
+        status["step"] = "Completed ✅"
+        if os.environ.get('FLASK_ENV') != 'production':
+            port = os.environ.get('PORT', 5001)
+            webbrowser.open(f"http://127.0.0.1:{port}/results")
+
+    except Exception as e:
+        status["step"] = f"Analysis failed: {str(e)}"
 
 @main.route("/")
 def index():
@@ -26,24 +55,20 @@ def upload_file():
             if existing_file.endswith(".apk"):
                 os.remove(os.path.join(upload_dir, existing_file))
 
-        # Save the new file
         save_path = os.path.join(upload_dir, file.filename)
         file.save(save_path)
 
-        # Run analysis scripts
-        try:
-            subprocess.run(["python", "analysis/static.py"], check=True)
-            subprocess.run(["python", "analysis/ml.py"], check=True)
-            
-            # Don't auto-open browser in production
-            if os.environ.get('FLASK_ENV') != 'production':
-                port = os.environ.get('PORT', 5001)
-                webbrowser.open(f"http://127.0.0.1:{port}/results")
+        global status
+        status["step"] = "File uploaded ✅"
 
-        except Exception as e:
-            return jsonify({"status": "error", "message": f"Analysis failed: {str(e)}"}), 500
+        thread = threading.Thread(target=run_analysis_scripts)
+        thread.start()
 
-        return jsonify({"status": "success", "message": f"File {file.filename} uploaded and analyzed!"})
+        return jsonify({"status": "success", "message": f"File {file.filename} uploaded, analysis started"})
+
+@main.route("/status")
+def get_status():
+    return jsonify(status)
 
 @main.route("/results")
 def results():
@@ -52,18 +77,22 @@ def results():
 @main.route("/api/results/<path:filename>")
 def serve_result_data(filename):
     """Serve analysis result JSON files"""
-    # Look for results in analysis output or config directories
-    analysis_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'analysis')
-    config_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config')
+    base_dir = os.path.dirname(os.path.dirname(__file__))
+    analysis_dir = os.path.join(base_dir, 'analysis')
+    config_dir = os.path.join(base_dir, 'config')
     
-    # Check analysis directory first
     file_path = os.path.join(analysis_dir, filename)
     if os.path.exists(file_path):
-        return send_from_directory(analysis_dir, filename)
+        rel_dir = os.path.dirname(filename)
+        base_filename = os.path.basename(filename)
+        if rel_dir:
+            full_dir = os.path.join(analysis_dir, rel_dir)
+        else:
+            full_dir = analysis_dir
+        return send_from_directory(full_dir, base_filename)
     
-    # Check config directory
     file_path = os.path.join(config_dir, filename)
     if os.path.exists(file_path):
         return send_from_directory(config_dir, filename)
     
-    return jsonify({"error": "File not found"}), 404
+    return jsonify({"error": f"File not found: {filename}"}), 404

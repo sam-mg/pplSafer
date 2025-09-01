@@ -452,6 +452,116 @@ body::before {
     color: #4a5568;
 }
 
+.assessment-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.assessment-badge.clean {
+    background: rgba(72, 187, 120, 0.1);
+    color: #38a169;
+    border: 1px solid rgba(72, 187, 120, 0.3);
+}
+
+.assessment-badge.malware {
+    background: rgba(239, 68, 68, 0.1);
+    color: #c53030;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.assessment-badge.error {
+    background: rgba(251, 146, 60, 0.1);
+    color: #dd6b20;
+    border: 1px solid rgba(251, 146, 60, 0.3);
+}
+
+.error-message {
+    color: #e53e3e !important;
+    font-weight: 600;
+    font-style: italic;
+}
+
+.monitor-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.monitor-table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.monitor-table-container::-webkit-scrollbar-track {
+    background: rgba(248, 250, 252, 0.8);
+    border-radius: 4px;
+}
+
+.monitor-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 4px;
+}
+
+.monitor-table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a6fd8, #6a4190);
+}
+
+.monitor-table {
+    min-width: 100%;
+    white-space: nowrap;
+}
+
+.monitor-table td {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 12px 16px;
+    font-size: 13px;
+}
+
+.monitor-table td.expandable {
+    max-width: 300px;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.monitor-select-container {
+    margin-bottom: 20px;
+}
+
+.monitor-select-container label {
+    display: block;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.monitor-select-container select {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px 12px;
+    border: 2px solid rgba(226, 232, 240, 0.6);
+    border-radius: 8px;
+    background: rgba(248, 250, 252, 0.8);
+    backdrop-filter: blur(10px);
+    font-size: 14px;
+    color: #2d3748;
+    transition: all 0.3s ease;
+}
+
+.monitor-select-container select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 @media (max-width: 768px) {
     body {
         padding: 16px;
@@ -495,5 +605,19 @@ body::before {
     
     .mitre-id {
         font-size: 12px;
+    }
+    
+    .monitor-table td {
+        max-width: 150px;
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+    
+    .monitor-table td.expandable {
+        max-width: 200px;
+    }
+    
+    .monitor-select-container select {
+        max-width: 100%;
     }
 }

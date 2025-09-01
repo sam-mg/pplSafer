@@ -5,22 +5,44 @@ import json
 import requests
 import tempfile
 import zipfile
+import subprocess
+import re
 from datetime import datetime, timezone
 from loguru import logger
 from androguard.misc import AnalyzeAPK
 from androguard.core.apk import APK
 from cryptography import x509
+from collections import Counter
 
 logger.remove()
 
 API_KEY = "d6a812d25e432e3d11281ad21974cb62916a9a592ec4786f7557e93808b4b17e"
 RULES_PATH = os.path.expanduser("config/rules_new.json")
 
+LEGIT_DB_MAP = {
+    "net.one97.paytm": ["AnumatiDatabase.db", "AppLocale.db", "barcode_scanner_history.db", "chatDb.db", "discoveryDb.db", "google_app_measurement.db", "google_app_measurement_local.db", "passbook.db", "paytm.db", "sendbird_master.db", "trustmanager.db", "webview.db", "webviewCache.db"],
+    "com.dhanalakshmi": ["google_analytics_v4.db", "google_app_measurement.db", "google_app_measurement_local.db", "gtm_urls.db"],
+    "com.hdfcbank.mobilebanking": ["google_app_measurement.db", "google_app_measurement_local.db"],
+    "com.icicibank.imobile": ["AdMobOfflineBufferedPings.db", "OfflineUpload.db", "cbp_april.db", "com.google.android.gms.ads.db", "exoplayer_internal.db", "google_analytics_v4.db", "google_app_measurement.db", "google_app_measurement_local.db", "google_tagmanager.db", "gtm_urls.db", "webview.db", "webviewCache.db"],
+    "com.bankofbaroda.mconnect": ["CredentialDatabase.db", "exoplayer_internal.db", "google_app_measurement.db", "google_app_measurement_local.db", "webview.db", "webviewCache.db"],
+    "com.kotak.neobank": ["google_app_measurement.db", "google_app_measurement_local.db", "les.db", "newsroom.db", "rest_client.db", "security.db", "threatstore.db"],
+    "com.google.android.apps.nbu.paisa.user": [".db", "_inbox_threads.notifications.db", "_optimized_threads.notifications.db", "_per_account_gnp_room.db", "_room_notifications.db", "_tasks.notifications.db", "_threads.notifications.db", "google_app_measurement.db", "google_app_measurement_local.db", "growthkit.db", "tekartik_sqflite.db"],
+    "com.phonepe.app": [".db", "AccountAggregatorDatabase.db", "AdMobOfflineBufferedPings.db", "OfflineUpload.db", "chuck.db", "chucker.db", "com.google.android.gms.ads.db", "exoplayer_internal.db", "google_analytics_v4.db", "google_app_measurement.db", "google_app_measurement_local.db", "kn_generic.db", "search.db", "sqlite-jdbc-tmp-%d.db"],
+    "com.axis.mobile": ["EzAccountsDatabase.db", "exoplayer_internal.db", "global.db", "google_analytics_v4.db", "google_app_measurement.db", "google_app_measurement_local.db", "google_tagmanager.db", "gtm_urls.db", "tekartik_sqflite.db"],
+    "com.sbi.lotusintouch": ["barcode_scanner_history.db", "google_app_measurement.db", "google_app_measurement_local.db"]
+}
+
+all_db_names = [db for dbs in LEGIT_DB_MAP.values() for db in dbs]
+db_counts = Counter(all_db_names)
+UNIQUE_LEGIT_DB_NAMES = {db for db, count in db_counts.items() if count == 1}
+
 def clean_method_name(name: str) -> str:
     return name.split("(")[0] if name and "(" in name else (name.strip() if name else "")
 
+
 def clean_class_name(name: str) -> str:
     return name.strip() if name else ""
+
 
 def get_hashes(filepath: str):
     hashes = {"md5": None, "sha1": None, "sha256": None}
@@ -79,24 +101,121 @@ class VirusTotal:
         except Exception as e:
             return {"status": "Error", "message": f"VT query error: {e}"}
 
-# --- Database extraction logic ---
+
+def run_clamav_scan(apk_path: str):
+    """
+    Run ClamAV scan on the APK file and parse the output
+    """
+    try:
+        # Run clamscan command
+        result = subprocess.run(
+            ["clamscan", apk_path],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
+        )
+        
+        output = result.stdout
+        
+        # Parse the output
+        scan_result = {"status": "Unknown", "details": {}}
+        
+        # Extract scan result (OK, FOUND, etc.)
+        file_result_match = re.search(rf"{re.escape(apk_path)}: (.+)", output)
+        if file_result_match:
+            scan_status = file_result_match.group(1).strip()
+            scan_result["status"] = scan_status
+        
+        # Parse scan summary
+        summary_section = re.search(r"----------- SCAN SUMMARY -----------(.+?)(?:\n\n|\Z)", output, re.DOTALL)
+        if summary_section:
+            summary_text = summary_section.group(1)
+            
+            # Extract key metrics
+            patterns = {
+                "known_viruses": r"Known viruses:\s*(\d+)",
+                "engine_version": r"Engine version:\s*([\d.]+)",
+                "scanned_directories": r"Scanned directories:\s*(\d+)",
+                "scanned_files": r"Scanned files:\s*(\d+)",
+                "infected_files": r"Infected files:\s*(\d+)",
+                "data_scanned": r"Data scanned:\s*(.+)",
+                "data_read": r"Data read:\s*(.+)",
+                "scan_time": r"Time:\s*(.+)",
+                "start_date": r"Start Date:\s*(.+)",
+                "end_date": r"End Date:\s*(.+)"
+            }
+            
+            for key, pattern in patterns.items():
+                match = re.search(pattern, summary_text)
+                if match:
+                    value = match.group(1).strip()
+                    # Convert numeric values
+                    if key in ["known_viruses", "scanned_directories", "scanned_files", "infected_files"]:
+                        try:
+                            scan_result["details"][key] = int(value)
+                        except ValueError:
+                            scan_result["details"][key] = value
+                    else:
+                        scan_result["details"][key] = value
+        
+        # Determine overall assessment
+        if scan_result["status"] == "OK":
+            scan_result["assessment"] = "CLEAN"
+        elif "FOUND" in scan_result["status"]:
+            scan_result["assessment"] = "MALWARE_DETECTED"
+        else:
+            scan_result["assessment"] = "UNKNOWN"
+        
+        # Add raw output for debugging
+        scan_result["raw_output"] = output
+        scan_result["command_exit_code"] = result.returncode
+        
+        return scan_result
+        
+    except subprocess.TimeoutExpired:
+        return {
+            "status": "Error",
+            "assessment": "ERROR",
+            "message": "ClamAV scan timed out after 5 minutes",
+            "details": {}
+        }
+    except FileNotFoundError:
+        return {
+            "status": "Error", 
+            "assessment": "ERROR",
+            "message": "ClamAV (clamscan) not found. Please install ClamAV.",
+            "details": {}
+        }
+    except Exception as e:
+        return {
+            "status": "Error",
+            "assessment": "ERROR", 
+            "message": f"ClamAV scan failed: {str(e)}",
+            "details": {}
+        }
+
+
 def extract_databases(apk_path: str):
-    """
-    Extracts .db, .sqlite, .realm files from APK and stores in /tmp for inspection.
-    Returns list of database file paths inside the APK.
-    """
     db_files = []
     try:
         with zipfile.ZipFile(apk_path, "r") as apk_zip:
+            tmp_dir = tempfile.mkdtemp()
             for file in apk_zip.namelist():
                 if file.endswith((".db", ".sqlite", ".realm")):
-                    db_files.append(file)
-                    # extract to tmp dir for inspection if needed
-                    tmp_dir = tempfile.mkdtemp()
+                    db_files.append(os.path.basename(file))
                     apk_zip.extract(file, tmp_dir)
     except Exception as e:
         logger.error(f"Database extraction failed: {e}")
     return db_files
+
+
+def find_db_strings(apk_path):
+    a, _, dx = AnalyzeAPK(apk_path)
+    return sorted({
+        s for s in dx.get_strings_analysis().keys()
+        if isinstance(s, str) and s.endswith(".db")
+    })
+
 
 def analyze_rules(apk_path: str):
     if not os.path.exists(RULES_PATH):
@@ -111,8 +230,12 @@ def analyze_rules(apk_path: str):
         return {"error": f"Failed to analyze APK: {e}"}
 
     apk_permissions = sorted([p.strip().lower() for p in a.get_permissions()])
+    package_name = a.get_package()
     results = []
-    db_files = extract_databases(apk_path)
+
+    db_files_zip = extract_databases(apk_path)
+    db_strings_dx = find_db_strings(apk_path)
+    all_db_names_found = list(set(db_files_zip + db_strings_dx))
 
     for rule in rules:
         rule_id = rule.get("rule_id", "Unknown")
@@ -121,37 +244,100 @@ def analyze_rules(apk_path: str):
         target_class = rule.get("target_class")
         target_classes = rule.get("target_classes")
         target_methods = rule.get("target_methods", [])
+        target_strings = rule.get("target_strings", [])
         rule_type = rule.get("rule_type")
-
-        permission_present = True
-        if target_permission is not None:
-            target_permissions_list = (
-                [target_permission.strip().lower()]
-                if isinstance(target_permission, str)
-                else [p.strip().lower() for p in target_permission]
-            )
-            permission_present = any(p in apk_permissions for p in target_permissions_list)
 
         score = 0
         matched_methods = set()
         class_referenced = False
         missing_methods = []
+        matched_strings = []
 
-        # --- Special handling for rule 27: Database presence ---
-        if str(rule_id) == "27":
-            if db_files:
-                score = 1
-            results.append({
-                "rule_id": rule_id,
-                "description": description,
-                "databases_found": db_files,
+        permission_present = False
+        if target_permission:
+            if isinstance(target_permission, list):
+                permission_present = any(
+                    p.lower() in apk_permissions for p in target_permission
+                )
+            elif isinstance(target_permission, str):
+                permission_present = target_permission.lower() in apk_permissions
+
+        COMMON_DB_NAMES = {
+            "google_app_measurement_local.db",
+            "google_app_measurement.db",
+            "google_analytics_v4.db","tekartik_sqflite.db",".db","asset.db"
+        }
+
+        def analyze_rule_27(apk_path: str, package_name: str, all_db_names_found: list):
+            print("\n[DEBUG][Rule 27] Starting custom DB analysis...")
+            print(f"[DEBUG][Rule 27] APK package: {package_name}")
+            print(f"[DEBUG][Rule 27] Databases found in APK before filtering: {all_db_names_found}")
+
+            filtered_dbs = [db for db in all_db_names_found if db not in COMMON_DB_NAMES]
+            print(f"[DEBUG][Rule 27] Databases after removing common DBs: {filtered_dbs}")
+
+            flagged_dbs = []
+            score = 0
+
+            if not filtered_dbs:
+                print("[DEBUG][Rule 27] No unique DBs found after filtering. Returning score 0.")
+                return {
+                    "rule_id": "rule_27",
+                    "description": "Detects database impersonation by checking unique legitimate DBs.",
+                    "databases_found_in_apk": all_db_names_found,
+                    "flagged_unique_legit_databases": [],
+                    "score": 0
+                }
+
+            for db_name in filtered_dbs:
+                print(f"[DEBUG][Rule 27] Checking DB: {db_name}")
+                db_matched = False
+                for legit_pkg, legit_dbs in LEGIT_DB_MAP.items():
+                    if db_name in legit_dbs:
+                        db_matched = True
+                        if legit_pkg == package_name:
+                            status = "standard"
+                            print(f"[DEBUG][Rule 27] DB {db_name} belongs to same package ({package_name}) -> standard")
+                        else:
+                            status = "impersonation"
+                            score = 1
+                            print(f"[DEBUG][Rule 27] DB {db_name} belongs to {legit_pkg}, not {package_name} -> impersonation, score set to 1")
+
+                        flagged_dbs.append({
+                            "db_name": db_name,
+                            "legit_package_name": legit_pkg,
+                            "input_package_name": package_name,
+                            "status": status
+                        })
+
+                if not db_matched:
+                    print(f"[DEBUG][Rule 27] DB {db_name} not found in LEGIT_DB_MAP -> unknown, score set to 1")
+                    flagged_dbs.append({
+                        "db_name": db_name,
+                        "legit_package_name": "unknown",
+                        "input_package_name": package_name,
+                        "status": "unknown"
+                    })
+                    score = 1
+
+            print(f"[DEBUG][Rule 27] Final flagged DBs: {flagged_dbs}")
+            print(f"[DEBUG][Rule 27] Final score: {score}")
+
+            return {
+                "rule_id": "rule_27",
+                "description": "Detects database impersonation by checking unique legitimate DBs.",
+                "databases_found_in_apk": all_db_names_found,
+                "flagged_unique_legit_databases": flagged_dbs,
                 "score": score
-            })
+            }
+
+        if rule_type == "custom_db_check":
+            rule27_result = analyze_rule_27(apk_path, package_name, all_db_names_found)
+            results.append(rule27_result)
             continue
 
-        # --- Special case: Manifest launcher activity presence ---
         if rule_type == "manifest_absence":
-            score = 1  # assume missing launcher
+            score = 1
             try:
                 for activity in a.get_activities():
                     intent_filters = a.get_intent_filters("activity", activity)
@@ -167,51 +353,67 @@ def analyze_rules(apk_path: str):
                         break
             except Exception as e:
                 logger.debug(f"Manifest check error: {e}")
+            results.append({
+                "rule_id": rule_id,
+                "description": description,
+                "has_launcher_activity": bool(score == 0),
+                "score": score
+            })
+            continue
 
-        else:
-            # --- General rule handling ---
-            if not (target_class or target_classes):
-                if permission_present:
-                    score = 1
-            else:
-                classes_to_check = []
-                if target_classes:
-                    for cls in target_classes:
-                        if isinstance(cls, str):
-                            classes_to_check.append({"class": cls, "methods": target_methods})
-                        elif isinstance(cls, dict):
-                            classes_to_check.append(cls)
-                elif target_class:
-                    classes_to_check = [{"class": target_class, "methods": target_methods}]
-                
-                for class_info in classes_to_check:
-                    rule_class = class_info.get("class", "")
-                    rule_methods = class_info.get("methods", [])
-                    if not rule_class or not rule_methods:
-                        continue
+        if target_class or target_classes:
+            classes_to_check = []
+            if target_classes:
+                for cls in target_classes:
+                    if isinstance(cls, str):
+                        classes_to_check.append({"class": cls, "methods": target_methods})
+                    elif isinstance(cls, dict):
+                        classes_to_check.append(cls)
+            elif target_class:
+                classes_to_check = [{"class": target_class, "methods": target_methods}]
 
+            for class_info in classes_to_check:
+                rule_class = class_info.get("class", "")
+                rule_methods = class_info.get("methods", [])
+                if not rule_class:
+                    continue
+
+                class_name_found = False
+                for c in dx.classes.keys():
+                    if clean_class_name(str(c)).strip("L;") == rule_class.strip("L;"):
+                        class_name_found = True
+                        class_referenced = True
+                        for method in dx.classes[c].get_methods():
+                            method_name = clean_method_name(method.name)
+                            if method_name in rule_methods:
+                                matched_methods.add(method_name)
+
+                if not class_name_found:
                     for method in dx.get_methods():
                         for _, call, _ in method.get_xref_to():
                             call_class = clean_class_name(str(call.class_name)).strip("L;")
-                            call_method = clean_method_name(str(call.name))
-
-                            if call_class == rule_class.strip("L;") or f"L{call_class}" == rule_class:
+                            if call_class == rule_class.strip("L;"):
                                 class_referenced = True
-                                if call_method in rule_methods:
-                                    matched_methods.add(call_method)
-                
-                all_rule_methods = []
-                if target_classes:
-                    for cls_info in classes_to_check:
-                        all_rule_methods.extend(cls_info.get("methods", []))
-                elif target_methods:
-                    all_rule_methods = target_methods
+                                break
 
-                missing_methods = [m for m in all_rule_methods if m not in matched_methods]
-                
-                if permission_present and class_referenced and not missing_methods:
-                    score = 1
-        
+            all_rule_methods = []
+            if target_classes:
+                for cls_info in classes_to_check:
+                    all_rule_methods.extend(cls_info.get("methods", []))
+            elif target_methods:
+                all_rule_methods = target_methods
+
+            missing_methods = [m for m in all_rule_methods if m not in matched_methods]
+
+            if permission_present and class_referenced and not missing_methods:
+                score = 1
+
+        if target_strings:
+            strings_found = [s for s in target_strings if s in dx.get_strings_analysis().keys()]
+            matched_strings.extend(strings_found)
+            if strings_found:
+                score = 1
+
         results.append({
             "rule_id": rule_id,
             "description": description,
@@ -219,10 +421,11 @@ def analyze_rules(apk_path: str):
             "class_referenced": class_referenced if target_class or target_classes else "N/A",
             "target_methods_present": sorted(list(matched_methods)) if target_class or target_classes else "N/A",
             "target_methods_missing": missing_methods if target_class or target_classes else "N/A",
+            "matched_strings": matched_strings,
             "score": score
         })
 
-    return {"rules": results, "permissions": apk_permissions, "databases": db_files}
+    return {"rules": results, "permissions": apk_permissions, "databases": all_db_names_found}
 
 def analyze_apk_certs(apk_path: str):
     try:
@@ -254,16 +457,14 @@ def analyze_apk_certs(apk_path: str):
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    apk_dir = "uploads/"  # change to your folder path
+    apk_dir = "uploads/"
 
-    # Find the APK file in the directory
     apk_files = [f for f in os.listdir(apk_dir) if f.endswith(".apk")]
 
     if not apk_files:
         print(f"No APK files found in {apk_dir}")
         sys.exit(1)
 
-    # Since there is only one APK, pick it
     apk_file = os.path.join(apk_dir, apk_files[0])
     filename = os.path.basename(apk_file)
 
@@ -280,6 +481,9 @@ if __name__ == "__main__":
     vt = VirusTotal()
     vt_data = vt.check_hash_data(hashes.get("sha256"), filename)
 
+    print("[+] Running ClamAV scan...")
+    clamav_data = run_clamav_scan(apk_file)
+
     print("[+] Running rule-based analysis...")
     rules_data = analyze_rules(apk_file)
 
@@ -291,18 +495,16 @@ if __name__ == "__main__":
         "package_name": package_name,
         "hashes": hashes,
         "virus_total": vt_data,
+        "clamav": clamav_data,
         "rules_analysis": rules_data,
         "certificates": certs_data,
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    # Define the path for the JSON file
-    save_path = "analysis/static_output.json"  # or provide a full path like "/home/avis/results/output.json"
+    save_path = "analysis/static_output.json"
 
-    # Ensure the directory exists
     os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
 
-    # Write to the JSON file (overwrites if it already exists)
     with open(save_path, "w") as f:
         json.dump(output, f, indent=4)
 

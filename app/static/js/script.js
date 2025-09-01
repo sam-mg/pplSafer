@@ -36,7 +36,7 @@ function renderFileList() {
 
     fileItem.querySelector(".remove-btn").addEventListener("click", () => {
         selectedFile = null;
-        fileInput.value = "";  // reset input so new selection works
+        fileInput.value = "";  
         renderFileList();
     });
 
@@ -62,11 +62,25 @@ async function uploadFiles() {
         const result = await response.json();
         message.textContent = result.message;
         message.className = "message success";
+
+        pollStatus();
     } catch (error) {
         message.textContent = "Upload failed.";
         message.className = "message error";
     }
 }
 
-// Attach upload button click
+function pollStatus() {
+    const interval = setInterval(async () => {
+        const res = await fetch("/status");
+        const data = await res.json();
+
+        message.textContent = data.step;
+
+        if (data.step.includes("Completed") || data.step.includes("failed")) {
+            clearInterval(interval);
+        }
+    }, 2000);
+}
+
 uploadBtn.addEventListener("click", uploadFiles);

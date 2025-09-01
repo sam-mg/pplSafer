@@ -2,7 +2,7 @@
   {
     "rule_id": "rule_1",
     "description": "Checks for ability to send and receive SMS messages.",
-    "target_permission": "android.permission.SEND_SMS",
+    "target_permission": ["android.permission.SEND_SMS"],
     "target_class": "Landroid/telephony/SmsManager",
     "target_methods": [
       "sendTextMessage",
@@ -13,7 +13,7 @@
   {
     "rule_id": "rule_2",
     "description": "Checks for ability to record audio using microphone.",
-    "target_permission": "android.permission.RECORD_AUDIO",
+    "target_permission": ["android.permission.RECORD_AUDIO"],
     "target_class": "Landroid/media/MediaRecorder",
     "target_methods": [
       "start",
@@ -25,7 +25,7 @@
   {
     "rule_id": "rule_3",
     "description": "Checks for ability to capture screen content and record screen.",
-    "target_permission": "android.permission.FOREGROUND_SERVICE",
+    "target_permission": ["android.permission.FOREGROUND_SERVICE"],
     "target_class": "Landroid/media/projection/MediaProjectionManager",
     "target_methods": [
       "createScreenCaptureIntent"
@@ -34,7 +34,7 @@
   {
     "rule_id": "rule_4",
     "description": "Checks for ability to access and intercept notifications.",
-    "target_permission": "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
+    "target_permission": ["android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"],
     "target_class": "Landroid/service/notification/NotificationListenerService",
     "target_methods": [
       "onNotificationPosted",
@@ -44,7 +44,7 @@
   {
     "rule_id": "rule_5",
     "description": "Checks for web browsing and internet access capabilities.",
-    "target_permission": "android.permission.INTERNET",
+    "target_permission": ["android.permission.INTERNET"],
     "target_class": "Landroid/webkit/WebView",
     "target_methods": [
       "loadUrl",
@@ -54,7 +54,7 @@
   {
     "rule_id": "rule_6",
     "description": "Checks for ability to read and write clipboard data.",
-    "target_permission": "android.permission.READ_CLIPBOARD",
+    "target_permission": ["android.permission.READ_CLIPBOARD"],
     "target_class": "Landroid/content/ClipboardManager",
     "target_methods": [
       "getPrimaryClip",
@@ -65,7 +65,7 @@
   {
     "rule_id": "rule_7",
     "description": "Checks for ability to access device location services.",
-    "target_permission": "android.permission.ACCESS_FINE_LOCATION",
+    "target_permission": ["android.permission.ACCESS_FINE_LOCATION"],
     "target_class": "Landroid/location/LocationManager",
     "target_methods": [
       "requestLocationUpdates",
@@ -75,7 +75,7 @@
   {
     "rule_id": "rule_8",
     "description": "Checks for accessibility service usage for persistence and control.",
-    "target_permission": "android.permission.BIND_ACCESSIBILITY_SERVICE",
+    "target_permission": ["android.permission.BIND_ACCESSIBILITY_SERVICE"],
     "target_class": "Landroid/accessibilityservice/AccessibilityService",
     "target_methods": [
       "performGlobalAction"
@@ -104,7 +104,7 @@
   {
     "rule_id": "rule_10",
     "description": "Detects keylogging attempts using Accessibility Service.",
-    "target_permission": "android.permission.BIND_ACCESSIBILITY_SERVICE",
+    "target_permission": ["android.permission.BIND_ACCESSIBILITY_SERVICE"],
     "target_class": "Landroid/accessibilityservice/AccessibilityService",
     "target_methods": [
       "getEventType",
@@ -115,7 +115,7 @@
   {
     "rule_id": "rule_11",
     "description": "Detects notification interception, tapping, and deceptive notifications.",
-    "target_permission": "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
+    "target_permission": ["android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"],
     "target_class": "Landroid/service/notification/NotificationListenerService",
     "target_methods": [
       "onNotificationPosted",
@@ -132,7 +132,7 @@
   {
     "rule_id": "rule_12",
     "description": "Detects overlay attacks using WindowManager.",
-    "target_permission": "android.permission.SYSTEM_ALERT_WINDOW",
+    "target_permission": ["android.permission.SYSTEM_ALERT_WINDOW"],
     "target_class": "Landroid/view/WindowManager",
     "target_methods": [
       "getSystemService",
@@ -144,7 +144,7 @@
   {
     "rule_id": "rule_13",
     "description": "Detects dynamic code loading through DexClassLoader.",
-    "target_permission": "android.permission.INTERNET",
+    "target_permission": ["android.permission.INTERNET"],
     "target_class": "Ldalvik/system/DexClassLoader",
     "target_methods": [
       "forName",
@@ -177,12 +177,12 @@
   {
     "rule_id": "rule_15",
     "description": "Detects installation of secondary payload APKs (dropper) - permission only.",
-    "target_permission": "android.permission.REQUEST_INSTALL_PACKAGES"
+    "target_permission": ["android.permission.REQUEST_INSTALL_PACKAGES"]
   },
   {
     "rule_id": "rule_16",
-    "description": "Checks for the ability to execute arbitrary JavaScript and exfiltrate data from WebViews. This is a primary method for stealing session info and credentials via overlay attacks.",
-    "target_permission": "android.permission.INTERNET",
+    "description": "Checks for the ability to execute arbitrary JavaScript and exfiltrate data from WebViews.",
+    "target_permission": ["android.permission.INTERNET"],
     "target_class": "Landroid/webkit/WebView",
     "target_methods": [
       "addJavascriptInterface",
@@ -193,8 +193,8 @@
   },
   {
     "rule_id": "rule_17",
-    "description": "Checks for direct access to and manipulation of cookies. This is a key indicator for session hijacking.",
-    "target_permission": "android.permission.INTERNET",
+    "description": "Checks for direct access to and manipulation of cookies.",
+    "target_permission": ["android.permission.INTERNET"],
     "target_class": "Landroid/webkit/CookieManager",
     "target_methods": [
       "getCookie",
@@ -226,7 +226,7 @@
   },
   {
     "rule_id": "rule_19",
-    "description": "Detects malicious intent strings commonly used by malware for persistence and monitoring.",
+    "description": "Detects malicious intent strings commonly used by malware.",
     "target_strings": [
       "android.intent.action.BOOT_COMPLETED",
       "android.provider.Telephony.SMS_RECEIVED",
@@ -250,8 +250,8 @@
   },
   {
     "rule_id": "rule_20",
-    "description": "Detects audio recording capabilities using MediaRecorder and AudioRecord.",
-    "target_permission": "android.permission.RECORD_AUDIO",
+    "description": "Detects audio recording capabilities.",
+    "target_permission": ["android.permission.RECORD_AUDIO"],
     "target_classes": [
       "Landroid/media/MediaRecorder",
       "Landroid/media/AudioRecord"
@@ -265,7 +265,7 @@
   },
   {
     "rule_id": "rule_21",
-    "description": "Detects apps without proper main launcher activity - potential background malware.",
+    "description": "Detects apps without proper main launcher activity.",
     "manifest_check": {
       "activity_name": ".MainActivity",
       "intent_action": "android.intent.action.MAIN",
@@ -275,7 +275,7 @@
   },
   {
     "rule_id": "rule_22",
-    "description": "Detects potential backdoor implementations using network sockets and HTTP clients.",
+    "description": "Detects potential backdoor implementations using sockets and HTTP clients.",
     "target_classes": [
       {
         "class": "Ljava/net/Socket",
@@ -316,10 +316,6 @@
     "description": "Detects attempts to disable Play Protect or tamper with package management.",
     "target_classes": [
       {
-        "class": "Landroid/provider/Settings",
-        "methods": ["ACTION_SECURITY_SETTINGS"]
-      },
-      {
         "class": "Landroid/content/pm/PackageManager",
         "methods": ["getPackageInfo", "getInstalledPackages"]
       },
@@ -328,7 +324,10 @@
         "methods": []
       }
     ],
-    "rule_type": "multi_class_methods"
+    "target_strings": [
+      "android.settings.ACTION_SECURITY_SETTINGS"
+    ],
+    "rule_type": "combined_check"
   },
   {
     "rule_id": "rule_25",
@@ -362,8 +361,7 @@
   },
   {
     "rule_id": "rule_27",
-    "description": "Detects apps using more than 4 databases (suspicious data storage).",
-    "rule_type": "database_count",
-    "threshold": 4
+    "description": "Detects database impersonation by checking for unique legitimate database names in a different package.",
+    "rule_type": "custom_db_check"
   }
 ]

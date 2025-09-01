@@ -24,3 +24,5 @@ uploads/*
 analysis/ml_output.json
 analysis/static_output.json
 analysis/output.json
+analysis/dynamic/API Calls/api_monitor_output.json
+analysis/dynamic/Network Calls/network_monitor_output.json

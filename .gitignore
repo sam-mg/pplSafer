@@ -20,11 +20,6 @@ PplSafer/
 uploads/*.apk
 uploads/*
 
-# Large model files (use Git LFS or external storage)
-models/*.pkl
-models/*.h5
-models/*.joblib
-
 # Output files that get regenerated
 analysis/ml_output.json
 analysis/static_output.json

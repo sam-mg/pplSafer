@@ -1,4 +1,31 @@
+# Deployment Configuration
+*.pyc
+__pycache__/
+app/__pycache__/
+.env
+.venv/
+venv/
 .DS_Store
+*.log
+.pytest_cache/
+
+# Virtual Environment
+PplSafer/
+
+# Local development
 .vscode/
-/ID Cards
-/APKs
+.idea/
+
+# Uploaded files (don't commit user uploads)
+uploads/*.apk
+uploads/*
+
+# Large model files (use Git LFS or external storage)
+models/*.pkl
+models/*.h5
+models/*.joblib
+
+# Output files that get regenerated
+analysis/ml_output.json
+analysis/static_output.json
+analysis/output.json

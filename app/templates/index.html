@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APK File Upload</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="upload-container">
         <h1 class="upload-title">APK File Upload</h1>
-        <p class="upload-subtitle">Select multiple APK files to upload</p>
+        <p class="upload-subtitle">Select an APK file to upload</p>
         
         <div class="file-input-wrapper">
-            <input type="file" id="fileInput" class="file-input" accept=".apk" multiple>
+            <input type="file" id="fileInput" class="file-input" accept=".apk" hidden>
             <button class="choose-files-btn" onclick="document.getElementById('fileInput').click()">
-                📱 Choose APK Files
+                📱 Choose APK File
             </button>
         </div>
         
@@ -22,13 +22,13 @@
             <div class="empty-state" id="emptyState">No file chosen</div>
         </div>
         
-        <button class="upload-btn" id="uploadBtn" onclick="uploadFiles()">
-            Upload Files
+        <button class="upload-btn" id="uploadBtn">
+            Upload File
         </button>
         
         <div class="message hidden" id="message"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

@@ -359,5 +359,11 @@
       }
     ],
     "rule_type": "multi_class_methods"
+  },
+  {
+    "rule_id": "rule_27",
+    "description": "Detects apps using more than 4 databases (suspicious data storage).",
+    "rule_type": "database_count",
+    "threshold": 4
   }
 ]

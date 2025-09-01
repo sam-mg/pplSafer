@@ -3,6 +3,8 @@ import os
 import hashlib
 import json
 import requests
+import tempfile
+import zipfile
 from datetime import datetime, timezone
 from loguru import logger
 from androguard.misc import AnalyzeAPK
@@ -77,6 +79,25 @@ class VirusTotal:
         except Exception as e:
             return {"status": "Error", "message": f"VT query error: {e}"}
 
+# --- Database extraction logic ---
+def extract_databases(apk_path: str):
+    """
+    Extracts .db, .sqlite, .realm files from APK and stores in /tmp for inspection.
+    Returns list of database file paths inside the APK.
+    """
+    db_files = []
+    try:
+        with zipfile.ZipFile(apk_path, "r") as apk_zip:
+            for file in apk_zip.namelist():
+                if file.endswith((".db", ".sqlite", ".realm")):
+                    db_files.append(file)
+                    # extract to tmp dir for inspection if needed
+                    tmp_dir = tempfile.mkdtemp()
+                    apk_zip.extract(file, tmp_dir)
+    except Exception as e:
+        logger.error(f"Database extraction failed: {e}")
+    return db_files
+
 def analyze_rules(apk_path: str):
     if not os.path.exists(RULES_PATH):
         return {"rules": [], "permissions": []}
@@ -91,6 +112,7 @@ def analyze_rules(apk_path: str):
 
     apk_permissions = sorted([p.strip().lower() for p in a.get_permissions()])
     results = []
+    db_files = extract_databases(apk_path)
 
     for rule in rules:
         rule_id = rule.get("rule_id", "Unknown")
@@ -115,7 +137,19 @@ def analyze_rules(apk_path: str):
         class_referenced = False
         missing_methods = []
 
-        # --- Special case: Rule 21 (launcher activity presence) ---
+        # --- Special handling for rule 27: Database presence ---
+        if str(rule_id) == "27":
+            if db_files:
+                score = 1
+            results.append({
+                "rule_id": rule_id,
+                "description": description,
+                "databases_found": db_files,
+                "score": score
+            })
+            continue
+
+        # --- Special case: Manifest launcher activity presence ---
         if rule_type == "manifest_absence":
             score = 1  # assume missing launcher
             try:
@@ -127,12 +161,12 @@ def analyze_rules(apk_path: str):
                     ):
                         if "android.intent.action.MAIN" in actions and \
                            "android.intent.category.LAUNCHER" in categories:
-                            score = 0  # launcher exists
+                            score = 0
                             break
                     if score == 0:
                         break
             except Exception as e:
-                logger.debug(f"Rule 21 error: {e}")
+                logger.debug(f"Manifest check error: {e}")
 
         else:
             # --- General rule handling ---
@@ -188,7 +222,7 @@ def analyze_rules(apk_path: str):
             "score": score
         })
 
-    return {"rules": results, "permissions": apk_permissions}
+    return {"rules": results, "permissions": apk_permissions, "databases": db_files}
 
 def analyze_apk_certs(apk_path: str):
     try:
@@ -260,16 +294,6 @@ if __name__ == "__main__":
         "rules_analysis": rules_data,
         "certificates": certs_data,
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }
-
-    output = {
-    "file": filename,
-    "package_name": package_name,
-    "hashes": hashes,
-    "virus_total": vt_data,
-    "rules_analysis": rules_data,
-    "certificates": certs_data,
-    "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
     # Define the path for the JSON file

@@ -22,8 +22,8 @@ A web-based application for analyzing Android APK files for potential malware us
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
-cd apk-malware-analysis
+git clone https://gitlab.com/sam-mg/pplsafer
+cd pplsafer
 ```
 
 2. Install dependencies:
@@ -93,11 +93,3 @@ apk-malware-analyzer/
 - Always scan APK files in a secure, isolated environment
 - The ML model may have false positives/negatives
 - VirusTotal API has rate limits
-
-## License
-
-[Add your license here]
-
-## Contributing
-
-[Add contribution guidelines here]

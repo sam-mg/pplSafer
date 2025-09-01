@@ -32,8 +32,8 @@ def upload_file():
 
         # Run analysis scripts
         try:
+            subprocess.run(["python", "analysis/static.py"], check=True)
             subprocess.run(["python", "analysis/ml.py"], check=True)
-            subprocess.run(["python", "analysis/json_rules.py"], check=True)
             
             # Don't auto-open browser in production
             if os.environ.get('FLASK_ENV') != 'production':

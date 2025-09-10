@@ -368,8 +368,8 @@
 	  "rule_id": "rule_28",
 	  "description": "Detects abnormal banking apps",
 	  "classes": ["Landroid/media/MediaRecorder","Landroid/service/notification/NotificationListenerService", "Landroid/provider/CallLog$Calls"]
-	  "methods": ["createScreenCaptureIntent","evaluateJavascript", "loadURL", "getPrimaryClip", "getLatitude", "getLongitude", "getEventType", "performGlobalAction"],
-	  "strings": ["content://sms"]
+	  "methods": ["createScreenCaptureIntent","evaluateJavascript", "loadURL", "getLatitude", "getLongitude", "getEventType", "performGlobalAction", "isAdminActive"],
+	  "strings": ["content://sms", ".nomedia", "content://com.android.chrome.browser"]
   }
 ]
 	

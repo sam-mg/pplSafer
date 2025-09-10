@@ -363,5 +363,13 @@
     "rule_id": "rule_27",
     "description": "Detects database impersonation by checking for unique legitimate database names in a different package.",
     "rule_type": "custom_db_check"
+  },
+  {
+	  "rule_id": "rule_28",
+	  "description": "Detects abnormal banking apps",
+	  "classes": ["Landroid/media/MediaRecorder","Landroid/service/notification/NotificationListenerService", "Landroid/provider/CallLog$Calls"]
+	  "methods": ["createScreenCaptureIntent","evaluateJavascript", "loadURL", "getPrimaryClip", "getLatitude", "getLongitude", "getEventType", "performGlobalAction"],
+	  "strings": ["content://sms"]
   }
 ]
+	

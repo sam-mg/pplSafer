@@ -370,6 +370,13 @@
 	  "classes": ["Landroid/media/MediaRecorder","Landroid/service/notification/NotificationListenerService", "Landroid/provider/CallLog$Calls"]
 	  "methods": ["createScreenCaptureIntent","evaluateJavascript", "loadURL", "getLatitude", "getLongitude", "getEventType", "performGlobalAction", "isAdminActive"],
 	  "strings": ["content://sms", ".nomedia", "content://com.android.chrome.browser"]
+  },
+  {
+	  "rule_id": "rule_29",
+	  "description": "Malicious APKs sniffing multiple banking apps notification",
+	  "methods": ["findAccessibilityNodeInfoByViewId"],
+	  "strings": ["com.sbi.lotusintouch", "com.axis.mobile", "com.csam.icici.bank.imobile"]
+
   }
 ]
 	

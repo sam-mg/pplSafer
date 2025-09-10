@@ -374,7 +374,7 @@
   {
 	  "rule_id": "rule_29",
 	  "description": "Malicious APKs sniffing multiple banking apps notification",
-	  "methods": ["findAccessibilityNodeInfoByViewId"],
+	  "methods": ["findAccessibilityNodeInfoByViewId", "getText"],
 	  "strings": ["com.sbi.lotusintouch", "com.axis.mobile", "com.csam.icici.bank.imobile"]
 
   }

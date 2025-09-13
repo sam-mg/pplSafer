@@ -26,3 +26,9 @@ analysis/static_output.json
 analysis/output.json
 analysis/dynamic/API Calls/api_monitor_output.json
 analysis/dynamic/Network Calls/network_monitor_output.json
+analysis/inner_hash_checker_output.json
+analysis/apk_hash_checker_output.json
+analysis/clamav_output.json
+analysis/cert_and_sign_output.json
+analysis/url_check_output.json
+analysis/rules_output.json

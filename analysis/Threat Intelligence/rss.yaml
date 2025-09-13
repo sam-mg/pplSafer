@@ -1,0 +1,90 @@
+general:
+    daemon: true
+    sleep: 3600
+    state_path: state.db
+
+sources:
+  - name: rss-cityofnorton
+    module: rss
+    url: https://www.cityofnorton.com/RSSFeed.aspx?ModID=76&CID=All-0
+    feed_type: messy
+
+  - name: rss-mcafee
+    module: rss
+    url: https://www.mcafee.com/blogs/feed/
+    feed_type: messy
+
+  - name: rss-microsoft-msrc
+    module: rss
+    url: https://msrc.microsoft.com/blog/feed
+    feed_type: messy
+
+  - name: rss-avast
+    module: rss
+    url: https://blog.avast.com/rss.xml
+    feed_type: messy
+
+  - name: rss-kaspersky
+    module: rss
+    url: https://www.kaspersky.co.uk/blog/feed
+    feed_type: messy
+
+  - name: rss-grahamcluley
+    module: rss
+    url: https://www.grahamcluley.com/feed
+    feed_type: messy
+
+  - name: rss-webroot
+    module: rss
+    url: https://www.webroot.com/blog/feed
+    feed_type: messy
+
+  - name: rss-safetydetectives
+    module: rss
+    url: https://www.safetydetectives.com/feed
+    feed_type: messy
+
+  - name: rss-virusdie
+    module: rss
+    url: https://virusdie.com/blog/feed
+    feed_type: messy
+
+  - name: rss-quickheal
+    module: rss
+    url: https://blogs.quickheal.com/feed
+    feed_type: messy
+
+  - name: rss-antivirussoftwareforpc
+    module: rss
+    url: https://antivirussoftwareforpc.blogs
+    feed_type: messy
+
+  - name: rss-avira
+    module: rss
+    url: https://www.avira.com/en/blog
+    feed_type: messy
+
+  - name: rss-sensorstechforum
+    module: rss
+    url: https://sensorstechforum.com/category
+    feed_type: messy
+
+  - name: rss-pandasecurity
+    module: rss
+    url: https://www.pandasecurity.com/en/mediacenter
+    feed_type: messy
+
+  - name: rss-zonealarm
+    module: rss
+    url: https://blog.zonealarm.com
+    feed_type: messy
+
+  - name: rss-vipre
+    module: rss
+    url: https://www.vipre.com/resources/blog
+    feed_type: messy
+
+operators:
+  - name: csvfile
+    module: csv
+    filename: output.csv

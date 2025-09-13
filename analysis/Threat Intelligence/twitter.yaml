@@ -1,0 +1,89 @@
+# ThreatIngestor Twitter-only config (rate-limit safe)
+
+general:
+  daemon: true
+  # Sleep 1 hour between runs instead of 15 mins
+  sleep: 3600
+  state_path: state.db
+
+credentials:
+  - name: twitter-auth
+credentials:
+  - name: twitter-auth
+    api_key: ${API_KEY}
+    api_secret_key: ${API_SECRET_KEY}
+    access_token: ${ACCESS_TOKEN}
+    access_token_secret: ${ACCESS_TOKEN_SECRET}
+    bearer_token: ${BEARER_TOKEN}
+
+sources:
+  # --- Specific Twitter handles ---
+  - name: twitter-rebensk
+    module: twitter
+    credentials: twitter-auth
+    username: ReBensk
+
+  - name: twitter-jameswt
+    module: twitter
+    credentials: twitter-auth
+    username: JAMESWT_WT
+
+  - name: twitter-banthisguy
+    module: twitter
+    credentials: twitter-auth
+    username: banthisguy9349
+
+  - name: twitter-marius
+    module: twitter
+    credentials: twitter-auth
+    username: MariusSheppard
+
+  - name: twitter-lukas
+    module: twitter
+    credentials: twitter-auth
+    username: LukasStefanko
+
+  - name: twitter-cryptax
+    module: twitter
+    credentials: twitter-auth
+    username: cryptax
+
+  - name: twitter-nifi
+    module: twitter
+    credentials: twitter-auth
+    username: ni_fi_70
+
+  - name: twitter-nethanella
+    module: twitter
+    credentials: twitter-auth
+    username: Nethanella
+
+  - name: twitter-akaclandestine
+    module: twitter
+    credentials: twitter-auth
+    username: akaclandestine
+
+  - name: twitter-androidmalware
+    module: twitter
+    credentials: twitter-auth
+    username: androidmalware2
+
+  # --- Hashtag searches (separate to reduce API stress) ---
+  - name: twitter-banking
+    module: twitter
+    credentials: twitter-auth
+    query: "#banking"
+    max_results: 10   # limit per run to avoid 429
+
+  - name: twitter-banking-trojans
+    module: twitter
+    credentials: twitter-auth
+    query: "#banking-trojans"
+    max_results: 10   # limit per run to avoid 429
+
+operators:
+  # Write everything into twitter.csv
+  - name: twitter-csv
+    module: csv
+    filename: twitter.csv
+

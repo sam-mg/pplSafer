@@ -11,8 +11,25 @@ status = {"step": "idle"}
 def run_analysis_scripts():
     global status
     try:
+        status["step"] = "Starting analysis..."
+
+        status["step"] = "Calculating Hash and verifying with 3rd parties..."
+        subprocess.run(["python", "analysis/apk_hash_checker.py"], check=True)
+
+        status["step"] = "Calculating Hash of files inside the APK and verifying with 3rd parties..."
+        subprocess.run(["python", "analysis/inner_hash_checker.py"], check=True)
+
+        status["step"] = "Running ClamAV scan..."
+        subprocess.run(["python", "analysis/clam.py"], check=True)
+
+        status["step"] = "Checking APK URLs for malicious content..."
+        subprocess.run(["python", "analysis/url_check.py"], check=True)
+
+        status["step"] = "Verifying the Authenticity of Certificates..."
+        subprocess.run(["python", "analysis/cert_and_sign.py"], check=True)
+
         status["step"] = "Static analysis running..."
-        subprocess.run(["python", "analysis/static.py"], check=True)
+        subprocess.run(["python", "analysis/rules.py"], check=True)
 
         status["step"] = "Machine Learning model testing in place..."
         subprocess.run(["python", "analysis/ml.py"], check=True)
@@ -20,23 +37,17 @@ def run_analysis_scripts():
         status["step"] = "Setting up for Dynamic analysis..."
         subprocess.run(["python", "analysis/dynamic/dynamic_setup.py"], check=True)
 
-        status["step"] = "Monitoring API Calls made..."
-        subprocess.run(["python", "analysis/dynamic/API Calls/api_monitor.py"], check=True)
+        status["step"] = "Monitoring API and Network Calls (unified)..."
+        subprocess.run(["python", "analysis/dynamic/unified_monitor.py"], check=True)
 
-        status["step"] = "Monitoring Network Calls made..."
-        subprocess.run(["python", "analysis/dynamic/Network Calls/network_monitor.py"], check=True)
-
-        status["step"] = "Completed ✅"
-        if os.environ.get('FLASK_ENV') != 'production':
-            port = os.environ.get('PORT', 5001)
-            webbrowser.open(f"http://127.0.0.1:{port}/results")
+        status["step"] = "Analysis Completed, viewing results..."
 
     except Exception as e:
         status["step"] = f"Analysis failed: {str(e)}"
 
 @main.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("main.html")
 
 @main.route("/upload", methods=["POST"])
 def upload_file():
@@ -49,7 +60,6 @@ def upload_file():
         return jsonify({"status": "error", "message": "No file selected or invalid file type"}), 400
 
     if file and file.filename.endswith(".apk"):
-        # Clear existing APKs
         upload_dir = current_app.config['UPLOAD_FOLDER']
         for existing_file in os.listdir(upload_dir):
             if existing_file.endswith(".apk"):
@@ -69,10 +79,6 @@ def upload_file():
 @main.route("/status")
 def get_status():
     return jsonify(status)
-
-@main.route("/results")
-def results():
-    return render_template("results.html")
 
 @main.route("/api/results/<path:filename>")
 def serve_result_data(filename):

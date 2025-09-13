@@ -1,0 +1,73 @@
+general:
+  daemon: true
+  sleep: 1800
+  state_path: state.db
+
+credentials:
+  - name: github-auth
+    token: ${GIT_API_KEY}
+
+sources:
+  - name: github-eset
+    module: rss
+    feed_type: messy
+    url: https://github.com/eset/malware-ioc/
+
+  - name: github-neo23x0-signature-base
+    module: rss
+    feed_type: messy
+    url: https://github.com/Neo23x0/signature-base
+
+  - name: github-cisco-talos-iocs
+    module: rss
+    feed_type: messy
+    url: https://github.com/Cisco-Talos/IOCs
+
+  - name: github-prodaft-larva18
+    module: rss
+    feed_type: messy
+    url: https://github.com/prodaft/malware-ioc/tree/master/LARVA-18
+
+  - name: github-sophos-iocs
+    module: rss
+    feed_type: messy
+    url: https://github.com/sophoslabs/IoCs
+
+  - name: github-githubinfosec
+    module: rss
+    feed_type: messy
+    url: https://github.com/GithubInfosec/latest-malware-IoC
+
+  - name: github-neo23x0-fenrir
+    module: rss
+    feed_type: messy
+    url: https://github.com/Neo23x0/Fenrir
+
+  - name: github-search-banking
+    module: github
+    credentials: github-auth
+    search: "banking"
+
+  - name: github-search-banking-trojan
+    module: github
+    credentials: github-auth
+    search: "banking trojan"
+
+  - name: github-search-malware
+    module: github
+    credentials: github-auth
+    search: "malware"
+
+operators:
+  # full raw output for inspection
+  - name: github-csv
+    module: csv
+    filename: github.csv
+    allowed_sources: [github-.*]
+
+  # sqlite backup of artifacts
+  - name: github-sqlite
+    module: sqlite
+    filename: github_artifacts.db
+    allowed_sources: [github-.*]
+

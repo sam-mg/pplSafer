@@ -1,0 +1,103 @@
+{
+    "net.one97.paytm": [
+        "AnumatiDatabase.db",
+        "AppLocale.db",
+        "barcode_scanner_history.db",
+        "chatDb.db",
+        "discoveryDb.db",
+        "google_app_measurement.db",
+        "google_app_measurement_local.db",
+        "passbook.db",
+        "paytm.db",
+        "sendbird_master.db",
+        "trustmanager.db",
+        "webview.db",
+        "webviewCache.db"
+    ],
+    "com.dhanalakshmi": [
+        "google_analytics_v4.db",
+        "google_app_measurement.db",
+        "google_app_measurement_local.db",
+        "gtm_urls.db"
+    ],
+    "com.hdfcbank.mobilebanking": [
+        "google_app_measurement.db",
+        "google_app_measurement_local.db"
+    ],
+    "com.icicibank.imobile": [
+        "AdMobOfflineBufferedPings.db",
+        "OfflineUpload.db",
+        "cbp_april.db",
+        "com.google.android.gms.ads.db",
+        "exoplayer_internal.db",
+        "google_analytics_v4.db",
+        "google_app_measurement.db",
+        "google_app_measurement_local.db",
+        "google_tagmanager.db",
+        "gtm_urls.db",
+        "webview.db",
+        "webviewCache.db"
+    ],
+    "com.bankofbaroda.mconnect": [
+        "CredentialDatabase.db",
+        "exoplayer_internal.db",
+        "google_app_measurement.db",
+        "google_app_measurement_local.db",
+        "webview.db",
+        "webviewCache.db"
+    ],
+    "com.kotak.neobank": [
+        "google_app_measurement.db",
+        "google_app_measurement_local.db",
+        "les.db",
+        "newsroom.db",
+        "rest_client.db",
+        "security.db",
+        "threatstore.db"
+    ],
+    "com.google.android.apps.nbu.paisa.user": [
+        ".db",
+        "_inbox_threads.notifications.db",
+        "_optimized_threads.notifications.db",
+        "_per_account_gnp_room.db",
+        "_room_notifications.db",
+        "_tasks.notifications.db",
+        "_threads.notifications.db",
+        "google_app_measurement.db",
+        "google_app_measurement_local.db",
+        "growthkit.db",
+        "tekartik_sqflite.db"
+    ],
+    "com.phonepe.app": [
+        ".db",
+        "AccountAggregatorDatabase.db",
+        "AdMobOfflineBufferedPings.db",
+        "OfflineUpload.db",
+        "chuck.db",
+        "chucker.db",
+        "com.google.android.gms.ads.db",
+        "exoplayer_internal.db",
+        "google_analytics_v4.db",
+        "google_app_measurement.db",
+        "google_app_measurement_local.db",
+        "kn_generic.db",
+        "search.db",
+        "sqlite-jdbc-tmp-%d.db"
+    ],
+    "com.axis.mobile": [
+        "EzAccountsDatabase.db",
+        "exoplayer_internal.db",
+        "global.db",
+        "google_analytics_v4.db",
+        "google_app_measurement.db",
+        "google_app_measurement_local.db",
+        "google_tagmanager.db",
+        "gtm_urls.db",
+        "tekartik_sqflite.db"
+    ],
+    "com.sbi.lotusintouch": [
+        "barcode_scanner_history.db",
+        "google_app_measurement.db",
+        "google_app_measurement_local.db"
+    ]
+}

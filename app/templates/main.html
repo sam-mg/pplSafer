@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PplSafer - APK Analysis Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main-styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1>📱 PplSafer</h1>
+            </div>
+            <div class="nav-tabs">
+                <button class="nav-tab" onclick="showTab('behind-html')">Behind the HTML</button>
+                <button class="nav-tab active" onclick="showTab('upload')">Upload</button>
+                <button class="nav-tab" onclick="showTab('results')">Results</button>
+            </div>
+        </nav>
+
+        <!-- Behind the HTML Section -->
+        <div id="behind-html" class="tab-content">
+            <div class="content-card">
+                <h2 class="section-title">🌐 Behind the HTML</h2>
+                <div class="workflow-section">
+                    <h3>🔄 APK Analysis Workflow</h3>
+                    
+                    <ol class="workflow-steps">
+                        <li><strong>User Input:</strong> A user inputs an APK file.</li>
+                        <li><strong>File Storage:</strong> The APK file is stored in the <code>uploads</code> folder.</li>
+                        <li><strong>Testing Process:</strong>
+                            <ol type="a">
+                                <li><strong>Hash Verification:</strong> The Hash of the APK is calculated and verified in:
+                                    <ul>
+                                        <li>MalwareBazzar</li>
+                                        <li>VirusTotal</li>
+                                        <li>Hash Collected from Threat Intelligence</li>
+                                    </ul>
+                                    <em>If found, the program stops and reports the finding. If not found, move to the next step.</em>
+                                </li>
+                                
+                                <li><strong>Internal File Analysis:</strong> Hash of all files inside the APK (Binary Files, PNG Files, Embedded APKs) is calculated and verified:
+                                    <ul>
+                                        <li><strong>If APK:</strong> MalwareBazzar, VirusTotal</li>
+                                        <li>Hash Collected from Threat Intelligence</li>
+                                    </ul>
+                                    <em>If found, the program stops and reports the finding. If not found, move to the next step.</em>
+                                </li>
+                                
+                                <li><strong>ClamAV Scan:</strong> The APK is scanned with the latest version data from ClamAV.</li>
+                                
+                                <li><strong>URL Analysis:</strong> All URLs from the app are extracted and checked in URLHaus.</li>
+                                
+                                <li><strong>Certificate Verification:</strong> Certificates and signature schemes are verified. Missing or invalid signatures/certificates are marked as suspicious.</li>
+                                
+                                <li><strong>Rules-Based Analysis:</strong> 
+                                    <p>The APK is evaluated against custom rules derived from well-known banking malware functionalities. Rules check for:</p>
+                                    <ul>
+                                        <li>SMS send/receive capabilities</li>
+                                        <li>Audio recording using microphone</li>
+                                        <li>Screen capture and display recording</li>
+                                        <li>Notification interception and deceptive notifications</li>
+                                        <li>WebView exploitation and JavaScript execution</li>
+                                        <li>Clipboard data access</li>
+                                        <li>Device location services</li>
+                                        <li>Accessibility Service abuse</li>
+                                        <li>Reflection usage (Class.forName, getDeclaredMethod)</li>
+                                        <li>Overlay attacks using WindowManager</li>
+                                        <li>Dynamic code loading through DexClassLoader</li>
+                                        <li>Runtime file encryption/decryption</li>
+                                        <li>Secondary payload installation (dropper functionality)</li>
+                                        <li>Cookie access and manipulation</li>
+                                        <li>Gmail access through WebView manipulation</li>
+                                        <li>Malicious intent strings</li>
+                                        <li>Apps without proper launcher activity</li>
+                                        <li>Backdoor implementations using sockets/HTTP clients</li>
+                                        <li>Biometric authentication API abuse</li>
+                                        <li>Play Protect tampering</li>
+                                        <li>Credential theft via overlay attacks</li>
+                                        <li>Call forwarding and call log abuse</li>
+                                        <li>Database impersonation</li>
+                                    </ul>
+                                </li>
+                                
+                                <li><strong>Machine Learning Analysis:</strong>
+                                    <ul>
+                                        <li>Load pre-trained XGBoost model using joblib</li>
+                                        <li>Analyze APK using Androguard to extract permissions, activities, services, receivers, strings, and external methods</li>
+                                        <li>Convert extracted features into binary feature vector</li>
+                                        <li>Get malware probability from model</li>
+                                        <li>Classify as Malware if the score is 30% or higher; scores above 50% indicate high confidence. Scores below 30% are classified as Benign.</li>
+                                    </ul>
+                                </li>
+                                
+                                <li><strong>Dynamic Analysis:</strong> Real-time behavioral analysis using Frida instrumentation and ADB communication.
+                                    
+                                    <h4>Environment Setup</h4>
+                                    <ul>
+                                        <li><strong>ADB Verification:</strong> Checks Android Debug Bridge installation with 10-second timeout</li>
+                                        <li><strong>Device Discovery:</strong> Executes <code>adb devices</code> to enumerate connected devices/emulators</li>
+                                        <li><strong>Device Validation:</strong> Filters devices by status 'device' for active connections</li>
+                                        <li><strong>APK Deployment:</strong> Installs APK using <code>adb install -r</code> with force replacement</li>
+                                        <li><strong>Installation Verification:</strong> Confirms successful deployment across all target devices</li>
+                                    </ul>
+                                    
+                                    <h4>Anti-Analysis Evasion</h4>
+                                    <ul>
+                                        <li><strong>Root Detection Bypass:</strong>
+                                            <ul>
+                                                <li>RootBeer library methods overridden</li>
+                                                <li>JailMonkey module constants spoofed</li>
+                                                <li>IRoot detection circumvented</li>
+                                                <li>Stericson RootShell bypass</li>
+                                            </ul>
+                                        </li>
+                                        <li><strong>Emulator Detection Bypass:</strong>
+                                            <ul>
+                                                <li>System properties spoofed</li>
+                                                <li>Device fingerprint modified to Samsung Galaxy S9</li>
+                                                <li>IMEI/subscriber ID randomized</li>
+                                                <li>Build properties overridden</li>
+                                            </ul>
+                                        </li>
+                                        <li><strong>SSL Certificate Pinning Bypass:</strong> SSLContext.init() method hooked</li>
+                                    </ul>
+                                    
+                                    <h4>API Monitoring Categories</h4>
+                                    <ul>
+                                        <li><strong>Telephony APIs:</strong> SMS operations, device identifiers, network information</li>
+                                        <li><strong>Media/Audio APIs:</strong> Audio recording and media manipulation</li>
+                                        <li><strong>Cryptographic APIs:</strong> Encryption/decryption activities and key generation</li>
+                                        <li><strong>Network APIs:</strong> HTTP connections, SQL operations, network communication patterns</li>
+                                        <li><strong>File System APIs:</strong> File operations and external storage access</li>
+                                        <li><strong>Permission APIs:</strong> Runtime permission requests and checks</li>
+                                        <li><strong>Location APIs:</strong> GPS and location service access</li>
+                                        <li><strong>Biometric APIs:</strong> Fingerprint and biometric authentication</li>
+                                        <li><strong>System APIs:</strong> Runtime commands, device policy, clipboard access</li>
+                                    </ul>
+                                    
+                                    <h4>Data Collection and Logging</h4>
+                                    <ul>
+                                        <li><strong>API Call Data:</strong> Method signatures, timestamps, argument values, return values, exceptions</li>
+                                        <li><strong>Network Traffic:</strong> URLs, headers, request/response data, connection parameters</li>
+                                        <li><strong>Output Format:</strong> JSON structured data written to api_monitor_output.json and network_monitor_output.json</li>
+                                        <li><strong>Real-time Display:</strong> Console output with categorized API calls and network connections</li>
+                                        <li><strong>Session Management:</strong> Interactive control with 'e' key termination, automatic cleanup processes</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="upload" class="tab-content active">
+            <div class="content-card upload-section">
+                <h2 class="section-title">📱 APK File Upload</h2>
+                <p class="section-subtitle">Select an APK file to upload</p>
+                
+                <div class="file-input-wrapper">
+                    <input type="file" id="fileInput" class="file-input" accept=".apk" hidden>
+                    <button class="choose-files-btn" onclick="document.getElementById('fileInput').click()">
+                        📱 Choose APK File
+                    </button>
+                </div>
+                
+                <div class="file-list" id="fileList">
+                    <div class="empty-state" id="emptyState">No file chosen</div>
+                </div>
+                
+                <button class="upload-btn" id="uploadBtn">
+                    Upload File
+                </button>
+                
+                <div class="message hidden" id="message"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="tab-content">
+            <div class="content-card">
+                <h2 class="section-title">📊 APK Analysis Results</h2>
+                
+                <!-- General Information -->
+                <div class="analysis-card">
+                    <h3 class="card-title">📋 General Information</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="general-info-tbody">
+                            <tr><td colspan="2">Loading general information...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- VirusTotal Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">🛡️ VirusTotal Report</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="virustotal-tbody">
+                            <tr><td colspan="2">Loading VirusTotal report...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Inner Hash Check Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">🔍 Inner Hash Analysis</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inner-hash-tbody">
+                            <tr><td colspan="2">Loading inner hash analysis...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Inner Hash Detailed Files Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">📁 File-by-File Analysis</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>VirusTotal</th>
+                                <th>Threat Intelligence DATABASE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inner-hash-files-tbody">
+                            <tr><td colspan="3">Loading file analysis...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ClamAV Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">🔍 ClamAV Scan</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clamav-tbody">
+                            <tr><td colspan="2">Loading ClamAV scan results...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- URL Check Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">🌐 URL Analysis</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="url-check-tbody">
+                            <tr><td colspan="2">Loading URL analysis...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Detailed URL Results Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">📋 Detailed URL Results</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>URL</th>
+                                <th>Found in URLhaus</th>
+                                <th>Found in Threat Intelligence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="url-details-tbody">
+                            <tr><td colspan="3">Loading detailed URL results...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Certificates Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">🔑 Certificates</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="certificates-tbody">
+                            <tr><td colspan="2">Loading certificate information...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Permissions Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">🔐 Permissions Analysis</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Permission</th>
+                            </tr>
+                        </thead>
+                        <tbody id="permissions-tbody">
+                            <tr><td>Loading permissions analysis...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Rules Analysis Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">⚖️ Rules-Based Analysis</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Rule ID</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rules-analysis-tbody">
+                            <tr><td colspan="4">Loading rules analysis...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Database Analysis Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">🗃️ Database Analysis</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Database File</th>
+                            </tr>
+                        </thead>
+                        <tbody id="database-analysis-tbody">
+                            <tr><td>Loading database analysis...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ML Prediction Section -->
+                <div class="analysis-card">
+                    <h3 class="card-title">🤖 ML Prediction</h3>
+                    <table class="info-table">
+                        <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ml-prediction-tbody">
+                            <tr><td colspan="2">Loading ML prediction...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="analysis-card">
+                    <h3 class="card-title">📡 Dynamic Monitors</h3>
+                    
+                    <div class="monitor-select-container">
+                        <label for="monitor-select">Choose Monitor:</label>
+                        <select id="monitor-select">
+                            <option value="">-- Select Monitor --</option>
+                            <option value="dynamic/API Calls/api_monitor_output.json">API Monitor</option>
+                            <option value="dynamic/Network Calls/network_monitor_output.json">Network Monitor</option>
+                        </select>
+                    </div>
+
+                    <div id="monitor-table-container" class="monitor-table-container">
+                        <p style="color: #6b7280; font-style: italic;">Select a monitor from the dropdown above to view dynamic analysis data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main-script.js') }}"></script>
+</body>
+</html>

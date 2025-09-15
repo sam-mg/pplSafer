@@ -1,6 +1,6 @@
 # PplSafer
 
-APK Malware Analysis Tool using machine learning and static analysis.
+Fake Banking Trojan APKs Detection Tool.
 
 ## Quick Start
 
